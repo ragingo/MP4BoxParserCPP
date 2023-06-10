@@ -51,44 +51,33 @@ namespace ragii { namespace mp4 {
 	struct Box
 	{
 		std::string m_TypeName;
-		uint32_t m_Size;
-		uint64_t m_LargeSize;
+		uint32_t m_Size = 0;
+		uint64_t m_LargeSize = 0;
 		BoxType m_Type;
-		uint64_t m_Offset;
-		uint64_t m_NextPos;
-		Box* m_Parent;
+		uint64_t m_Offset = 0;
+		uint64_t m_NextPos = 0;
+		Box* m_Parent = nullptr;
 
-		Box() :
-			m_Size(0),
-			m_LargeSize(0),
-			m_Type(0),
-			m_Offset(0),
-			m_NextPos(0),
-			m_Parent(nullptr) {
-		}
+		Box(): m_Type(0) {}
+
 		Box(BoxType type) :
-			m_Size(0),
-			m_LargeSize(0),
-			m_Type(type),
-			m_Offset(0),
-			m_NextPos(0),
-			m_Parent(nullptr) {
+			m_Type(type) {
 		}
+
 		Box& operator=(const Box& rhs) {
 			copy_box(this, &rhs);
 			return *this;
 		}
+
 		virtual ~Box() {}
 	};
 
 	struct FullBox : public Box
 	{
-		uint8_t m_Version;
-		uint32_t m_Flags; // 24 bits
+		uint8_t m_Version = 0;
+		uint32_t m_Flags = 0; // 24 bits
 
 		FullBox(BoxType type) :
-			m_Version(0),
-			m_Flags(0),
 			Box(type) {
 		}
 
@@ -103,12 +92,12 @@ namespace ragii { namespace mp4 {
 	struct SampleEntry : public Box
 	{
 		uint8_t m_Reserved[6] = { 0 };
-		uint16_t m_DataReferenceIndex;
+		uint16_t m_DataReferenceIndex = 0;
 
 		SampleEntry(BoxType type) :
-			m_DataReferenceIndex(0),
 			Box(type) {
 		}
+
 		virtual ~SampleEntry() {}
 	};
 
@@ -118,18 +107,13 @@ namespace ragii { namespace mp4 {
 		static const int kDefaultSampleSize = 16;
 
 		uint32_t m_Reserved2[2] = { 0 };
-		uint16_t m_ChannelCount;
-		uint16_t m_SampleSize;
-		uint16_t m_PreDefined;
-		uint16_t m_Reserved3;
-		uint32_t m_SampleRate;
+		uint16_t m_ChannelCount = kDefaultChannellCount;
+		uint16_t m_SampleSize = kDefaultSampleSize;
+		uint16_t m_PreDefined = 0;
+		uint16_t m_Reserved3 = 0;
+		uint32_t m_SampleRate = 0;
 
 		AudioSampleEntry(SampleEntryCode code) :
-			m_ChannelCount(kDefaultChannellCount),
-			m_SampleSize(kDefaultSampleSize),
-			m_PreDefined(0),
-			m_Reserved3(0),
-			m_SampleRate(0),
 			SampleEntry(code) {
 		}
 
@@ -182,14 +166,12 @@ namespace ragii { namespace mp4 {
 
 	struct HandlerBox : public FullBox
 	{
-		uint32_t m_PreDefined;
-		HandlerType m_HandlerType;
+		uint32_t m_PreDefined = 0;
+		HandlerType m_HandlerType = 0;
 		uint32_t m_Reserved[3] = {0};
 		std::string m_Name;
 
 		HandlerBox() :
-			m_PreDefined(0),
-			m_HandlerType(0),
 			FullBox(box_types::hdlr) {
 		}
 	};
@@ -216,7 +198,7 @@ namespace ragii { namespace mp4 {
 
 	struct SampleDescriptionBox : public FullBox
 	{
-		uint32_t m_EntryCount;
+		uint32_t m_EntryCount = 0;
 
 		struct Entry {
 			std::shared_ptr<SampleEntry> m_SampleEntry;
@@ -226,7 +208,6 @@ namespace ragii { namespace mp4 {
 		std::vector<Entry> m_Entries;
 
 		SampleDescriptionBox() :
-			m_EntryCount(0),
 			FullBox(box_types::stsd) {
 		}
 	};
@@ -241,39 +222,31 @@ namespace ragii { namespace mp4 {
 
 	struct TimeToSampleBox : public FullBox
 	{
-		uint32_t m_EntryCount;
+		uint32_t m_EntryCount = 0;
 
 		struct Entry {
-			uint32_t m_SampleCount;
-			uint32_t m_SampleDelta;
-			Entry() :
-				m_SampleCount(0),
-				m_SampleDelta(0) {
-			}
+			uint32_t m_SampleCount = 0;
+			uint32_t m_SampleDelta = 0;
+			Entry() {}
 		};
 
 		std::vector<Entry> m_Entries;
 
 		TimeToSampleBox() :
-			m_EntryCount(0),
 			FullBox(box_types::stts) {
 		}
 	};
 
 	struct SampleToChunkBox : public FullBox
 	{
-		uint32_t m_EntryCount;
+		uint32_t m_EntryCount = 0;
 
 		struct Entry
 		{
-			uint32_t m_FirstChunk;
-			uint32_t m_SamplePerChunk;
-			uint32_t m_SampleDescriptionIndex;
-			Entry() :
-				m_FirstChunk(0),
-				m_SamplePerChunk(0),
-				m_SampleDescriptionIndex(0) {
-			}
+			uint32_t m_FirstChunk = 0;
+			uint32_t m_SamplePerChunk = 0;
+			uint32_t m_SampleDescriptionIndex = 0;
+			Entry() {}
 		};
 
 		std::vector<Entry> m_Entries;
@@ -284,39 +257,34 @@ namespace ragii { namespace mp4 {
 
 	struct SampleSizeBox : public FullBox
 	{
-		uint32_t m_SampleSize;
-		uint32_t m_SampleCount;
+		uint32_t m_SampleSize = 0;
+		uint32_t m_SampleCount = 0;
 
 		struct Entry
 		{
-			uint32_t m_Size;
-			Entry() : m_Size(0) {
-			}
+			uint32_t m_Size = 0;
+			Entry() {}
 		};
 
 		std::vector<Entry> m_Entries;
 
 		SampleSizeBox() :
-			m_SampleSize(0),
-			m_SampleCount(0),
 			FullBox(box_types::stsz) {
 		}
 	};
 
 	struct ChunkOffsetBox : FullBox
 	{
-		uint32_t m_EntryCount;
+		uint32_t m_EntryCount = 0;
 
 		struct Entry {
-			uint32_t m_ChunkOffset;
-			Entry() : m_ChunkOffset(0) {
-			}
+			uint32_t m_ChunkOffset = 0;
+			Entry() {}
 		};
 
 		std::vector<Entry> m_Entries;
 
 		ChunkOffsetBox() :
-			m_EntryCount(0),
 			FullBox(box_types::stco) {
 		}
 	};

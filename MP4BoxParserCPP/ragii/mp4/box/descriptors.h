@@ -25,7 +25,7 @@ namespace ragii { namespace mp4 {
 
 	struct BaseDescriptor
 	{
-		DescriptorTag m_Tag;
+		DescriptorTag m_Tag = {};
 		virtual ~BaseDescriptor() {}
 	};
 
@@ -147,15 +147,15 @@ namespace ragii { namespace mp4 {
 
 	struct ESDescriptor : public BaseDescriptor
 	{
-		uint16_t m_ESID;
-		uint8_t m_StreamDependenceFlag; // 1 bit
-		uint8_t m_UrlFlag; // 1 bit
-		uint8_t m_OcrStreamFlag; // 1 bit
-		uint8_t m_StreamPriority; // 5 bits
-		uint16_t m_DependsOnESID; // StreamDependenceFlag が 0以外 の場合のみ存在する
-		uint8_t m_UrlLength; // URL_Flag が 0以外 の場合のみ存在する
+		uint16_t m_ESID = 0;
+		uint8_t m_StreamDependenceFlag = 0; // 1 bit
+		uint8_t m_UrlFlag = 0; // 1 bit
+		uint8_t m_OcrStreamFlag = 0; // 1 bit
+		uint8_t m_StreamPriority = 0; // 5 bits
+		uint16_t m_DependsOnESID = 0; // StreamDependenceFlag が 0以外 の場合のみ存在する
+		uint8_t m_UrlLength = 0; // URL_Flag が 0以外 の場合のみ存在する
 		std::string m_UrlString; // URL_Flag が 0以外 の場合のみ存在する
-		uint16_t m_OcrESID; // OCRstreamFlag  が 0以外 の場合のみ存在する
+		uint16_t m_OcrESID = 0; // OCRstreamFlag  が 0以外 の場合のみ存在する
 		DecoderConfigDescriptor m_DecConfigDescr;
 		SLConfigDescriptor m_SlConfigDescr;
 		IPI_DescrPointer m_IpiPtr[2];
