@@ -57,6 +57,7 @@ namespace ragii { namespace mp4 {
 		uint64_t m_Offset = 0;
 		uint64_t m_NextPos = 0;
 		Box* m_Parent = nullptr;
+		std::vector<std::shared_ptr<Box>> m_Children;
 
 		Box(): m_Type(0) {}
 
@@ -170,6 +171,10 @@ namespace ragii { namespace mp4 {
 		HandlerType m_HandlerType = 0;
 		uint32_t m_Reserved[3] = {0};
 		std::string m_Name;
+
+		std::string getHandlerName() const {
+			return fourcc_to_string(m_HandlerType);
+		}
 
 		HandlerBox() :
 			FullBox(box_types::hdlr) {

@@ -5,7 +5,6 @@
 #include <memory>
 #include <vector>
 #include <format>
-#include <ranges>
 #include <optional>
 #include "ragii/mp4/BoxParser.h"
 
@@ -42,14 +41,15 @@ int main()
     BoxParser parser(&ifs);
     parser.parse();
 
-    auto sortedBoxes = parser.getBoxes()
-        | std::views::values
-        | std::ranges::to<std::vector>();
+    auto dumpBox = [](const auto& box, int depth, const auto& dumpBoxRef) -> void {
+        std::cout << std::format("{:>{}}{} {{ pos: {:L}, size: {:L} }}", "", depth, box->m_TypeName, box->m_Offset, box->m_Size) << std::endl;
+        for (const auto& child : box->m_Children) {
+            dumpBoxRef(child, depth + 1, dumpBoxRef);
+        }
+    };
 
-    std::ranges::sort(sortedBoxes, {}, &Box::m_Offset);
-
-    for (const auto& box : sortedBoxes) {
-        std::cout << std::format("[box info] pos: {:L},\t\tname: {},\t\tsize: {:L} bytes", box->m_Offset, box->m_TypeName, box->m_Size) << std::endl;
+    for (const auto& box : parser.getBoxes()) {
+        dumpBox(box, 0, dumpBox);
     }
 
     return EXIT_SUCCESS;

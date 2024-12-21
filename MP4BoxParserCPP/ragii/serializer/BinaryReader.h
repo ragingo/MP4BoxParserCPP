@@ -79,6 +79,7 @@ namespace ragii { namespace serializer {
 				m_Stream->read(&buf, 1);
 				ss << buf;
 				if (buf == '\0') {
+					m_Stream->seekg(-1, std::ios_base::cur);
 					break;
 				}
 			}

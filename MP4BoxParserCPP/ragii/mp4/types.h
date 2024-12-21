@@ -9,27 +9,16 @@ namespace ragii { namespace mp4 {
 		return (a << 24) | (b << 16) | (c << 8) | d;
 	}
 
-	template<typename T>
-	std::string fourcc_to_string(T value)
+	constexpr std::string fourcc_to_string(uint32_t value)
 	{
 		const char chars[] = {
-			(char)((value >> 24) & 0xff),
-			(char)((value >> 16) & 0xff),
-			(char)((value >>  8) & 0xff),
-			(char)((value >>  0) & 0xff),
-			(char)NULL
+			static_cast<char>((value >> 24) & 0xff),
+			static_cast<char>((value >> 16) & 0xff),
+			static_cast<char>((value >>  8) & 0xff),
+			static_cast<char>((value >>  0) & 0xff),
+			0
 		};
 		return std::string(chars);
-	}
-
-	template<typename T, typename CHAR = char>
-	constexpr void fourcc_to_string2(T value, CHAR str[5])
-	{
-		str[0] = (value >> 24) & 0xff;
-		str[1] = (value >> 16) & 0xff;
-		str[2] = (value >>  8) & 0xff;
-		str[3] = (value >>  0) & 0xff;
-		str[4] = NULL;
 	}
 
 	namespace box_types {

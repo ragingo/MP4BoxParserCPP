@@ -26,22 +26,22 @@ namespace ragii { namespace mp4 {
 			switch (box->m_Type)
 			{
 			case box_types::ftyp:
-				m_Boxes.insert(std::make_pair(box->m_Type, box));
+				m_Boxes.push_back(box);
 				m_Reader.seek(box->m_NextPos);
 				break;
 
 			case box_types::moov:
-				m_Boxes.insert(std::make_pair(box->m_Type, parseMoov(*box)));
+				m_Boxes.emplace_back(parseMoov(*box));
 				break;
 
 			case box_types::mdat:
 			case box_types::free:
-				m_Boxes.insert(std::make_pair(box->m_Type, box));
+				m_Boxes.push_back(box);
 				m_Reader.seek(box->m_NextPos);
 				break;
 
 			default:
-				m_Boxes.insert(std::make_pair(box->m_Type, box));
+				m_Boxes.push_back(box);
 				m_Reader.seek(box->m_NextPos);
 				break;
 			}
@@ -89,22 +89,19 @@ namespace ragii { namespace mp4 {
 			{
 			case box_types::mvhd:
 			case box_types::iods:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 
 			case box_types::trak:
 				moov_box->trak = parseTrak(*child_box);
-				m_Boxes.insert(std::make_pair(child_box->m_Type, moov_box->trak));
+				moov_box->m_Children.push_back(moov_box->trak);
 				break;
 
 			case box_types::udta:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 
 			default:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 			}
@@ -133,17 +130,15 @@ namespace ragii { namespace mp4 {
 			switch (child_box->m_Type)
 			{
 			case box_types::tkhd:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 
 			case box_types::mdia:
 				trak_box->mdia = parseMdia(*child_box);
-				m_Boxes.insert(std::make_pair(child_box->m_Type, trak_box->mdia));
+				trak_box->m_Children.push_back(trak_box->mdia);
 				break;
 
 			default:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 			}
@@ -171,22 +166,20 @@ namespace ragii { namespace mp4 {
 			switch (child_box->m_Type)
 			{
 			case box_types::mdhd:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 
 			case box_types::hdlr:
 				mdia_box->hdlr = parseHdlr(*child_box);
-				m_Boxes.insert(std::make_pair(child_box->m_Type, mdia_box->hdlr));
+				mdia_box->m_Children.push_back(mdia_box->hdlr);
 				break;
 
 			case box_types::minf:
 				mdia_box->minf = parseMinf(*child_box);
-				m_Boxes.insert(std::make_pair(child_box->m_Type, mdia_box->minf));
+				mdia_box->m_Children.push_back(mdia_box->minf);
 				break;
 
 			default:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 			}
@@ -232,36 +225,30 @@ namespace ragii { namespace mp4 {
 			switch (child_box->m_Type)
 			{
 			case box_types::vmhd:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 
 			case box_types::dinf:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				break;
 
 			case box_types::dref:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);// TODO: fullbox ‚¾‚©‚ç‚Æ‚è‚ ‚¦‚¸“Ç‚Ý”ò‚Î‚·(Žq‚Ì url ‚É‚¢‚©‚È‚¢)
 				break;
 
 			case box_types::url:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 
 			case box_types::stbl:
 				minf_box->stbl = parseStbl(*child_box);
-				m_Boxes.insert(std::make_pair(child_box->m_Type, minf_box->stbl));
+				minf_box->m_Children.push_back(minf_box->stbl);
 				break;
 
 			case box_types::smhd:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 
 			default:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 			}
@@ -290,70 +277,61 @@ namespace ragii { namespace mp4 {
 			{
 			case box_types::stsd:
 				stbl_box->stsd = parseStsd(*child_box);
-				m_Boxes.insert(std::make_pair(child_box->m_Type, stbl_box->stsd));
+				stbl_box->m_Children.push_back(stbl_box->stsd);
 				break;
 
 			//case box_types::stsd:
-			//	m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 			//	m_Reader.seek(child_box->m_NextPos);// TODO: fullbox ‚¾‚©‚ç‚Æ‚è‚ ‚¦‚¸“Ç‚Ý”ò‚Î‚·(Žq‚Ì mp4v,mp4a ‚É‚¢‚©‚È‚¢)
 			//	break;
 
 			//case box_types::mp4v:
-			//	m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 			//	break;
 
 				//case box_types::avcc:
-				//	m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				//	m_Reader.seek(child_box->m_NextPos);
 				//	break;
 
 			//case box_types::btrt:
-			//	m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 			//	m_Reader.seek(child_box->m_NextPos);
 			//	break;
 
 				//case box_types::svcc:
-				//	m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				//	m_Reader.seek(child_box->m_NextPos);
 				//	break;
 
 			//case box_types::mp4a:
-			//	m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 			//	break;
 
 			//case box_types::esds:
-			//	m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 			//	m_Reader.seek(child_box->m_NextPos);
 			//	break;
 
 			case box_types::ctts:
 			case box_types::stss:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 
 			case box_types::stts:
 				stbl_box->stts = parseStts(*child_box);
-				m_Boxes.insert(std::make_pair(child_box->m_Type, stbl_box->stts));
+				stbl_box->m_Children.push_back(stbl_box->stts);
 				break;
 
 			case box_types::stsc:
 				stbl_box->stsc = parseStsc(*child_box);
-				m_Boxes.insert(std::make_pair(child_box->m_Type, stbl_box->stsc));
+				stbl_box->m_Children.push_back(stbl_box->stsc);
 				break;
 
 			case box_types::stsz:
 				stbl_box->stsz = parseStsz(*child_box);
-				m_Boxes.insert(std::make_pair(child_box->m_Type, stbl_box->stsz));
+				stbl_box->m_Children.push_back(stbl_box->stsz);
 				break;
 
 			case box_types::stco:
 				stbl_box->stco = parseStco(*child_box);
-				m_Boxes.insert(std::make_pair(child_box->m_Type, stbl_box->stco));
+				stbl_box->m_Children.push_back(stbl_box->stco);
 				break;
 
 			default:
-				m_Boxes.insert(std::make_pair(child_box->m_Type, child_box));
 				m_Reader.seek(child_box->m_NextPos);
 				break;
 			}

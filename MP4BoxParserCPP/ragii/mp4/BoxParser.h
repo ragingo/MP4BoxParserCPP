@@ -14,7 +14,7 @@ namespace ragii { namespace mp4 {
 
 		void parse();
 
-		const std::unordered_multimap<BoxType, std::shared_ptr<Box>>& getBoxes() const {
+		decltype(auto) getBoxes() const {
 			return m_Boxes;
 		}
 
@@ -38,7 +38,7 @@ namespace ragii { namespace mp4 {
 		std::shared_ptr<EsdBox> parseEsds(const Box& box);
 
 		serializer::BinaryReader m_Reader;
-		std::unordered_multimap<BoxType, std::shared_ptr<Box>> m_Boxes;
+		std::vector<std::shared_ptr<Box>> m_Boxes;
 	};
 
 } }
