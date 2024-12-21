@@ -1,51 +1,56 @@
 #include <algorithm>
-#include <cassert>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <vector>
+#include <format>
+#include <ranges>
+#include <optional>
 #include "ragii/mp4/BoxParser.h"
 
 using namespace ragii;
 using namespace ragii::mp4;
 
-template<typename... T>
-std::string format(std::format_string<T...> fmt, T&&... args)
-{
-	return std::format(std::locale(""), fmt, args...);
+std::optional<std::uintmax_t> getFileSize(const std::filesystem::path& path) {
+    auto status = std::filesystem::status(path);
+    if (std::filesystem::is_regular_file(status)) {
+        return std::filesystem::file_size(path);
+    } else {
+        std::cerr << "Error: file does not exist or is not a regular file." << std::endl;
+        return std::nullopt;
+    }
 }
 
 int main()
 {
-	const auto filename = "D:\\temp\\videos\\mp4_h264_aac.mp4";
-	std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
+    const std::filesystem::path filename = "D:\\temp\\videos\\mp4_h264_aac.mp4";
+    std::ifstream ifs(filename, std::ios_base::in | std::ios_base::binary);
 
-	if (!ifs.is_open()) {
-		std::cout << "open failed." << std::endl;
-		return EXIT_FAILURE;
-	}
+    if (!ifs.is_open()) {
+        std::cerr << "open failed." << std::endl;
+        return EXIT_FAILURE;
+    }
 
-	const auto filesize = std::filesystem::file_size(filename);
-	std::cout << ::format("file size: {:L} bytes", filesize) << std::endl;
+    auto filesize = getFileSize(filename);
+    if (!filesize) {
+        return EXIT_FAILURE;
+    }
 
-	BoxParser parser(&ifs);
-	parser.parse();
+    std::cout << std::format("file size: {:L} bytes", *filesize) << std::endl;
 
-	auto& boxes = parser.getBoxes();
-	std::vector<std::shared_ptr<Box>> sortedBoxes(boxes.size());
-	std::transform(boxes.begin(), boxes.end(), sortedBoxes.begin(), [](const auto& v) -> auto { return v.second; });
+    BoxParser parser(&ifs);
+    parser.parse();
 
-	std::sort(
-		sortedBoxes.begin(),
-		sortedBoxes.end(),
-		[](const auto& lhs, const auto& rhs) -> bool { return lhs->m_Offset < rhs->m_Offset; }
-	);
+    auto sortedBoxes = parser.getBoxes()
+        | std::views::values
+        | std::ranges::to<std::vector>();
 
-	for (auto& box : sortedBoxes) {
-		std::cout << ::format("[box info] pos: {:L},\t\tname: {},\t\tsize: {:L} bytes", box->m_Offset, box->m_TypeName, box->m_Size) << std::endl;
-	}
+    std::ranges::sort(sortedBoxes, {}, &Box::m_Offset);
 
-	ifs.close();
+    for (const auto& box : sortedBoxes) {
+        std::cout << std::format("[box info] pos: {:L},\t\tname: {},\t\tsize: {:L} bytes", box->m_Offset, box->m_TypeName, box->m_Size) << std::endl;
+    }
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
