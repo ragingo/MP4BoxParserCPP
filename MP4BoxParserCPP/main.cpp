@@ -42,7 +42,8 @@ int main()
     parser.parse();
 
     auto dumpBox = [](const auto& box, int depth, const auto& dumpBoxRef) -> void {
-        std::cout << std::format("{:>{}}{} {{ pos: {:L}, size: {:L} }}", "", depth, box->m_TypeName, box->m_Offset, box->m_Size) << std::endl;
+        auto size = box->m_Size == 1 ? box->m_LargeSize : box->m_Size;
+        std::cout << std::format("{:>{}}{} {{ pos: {:L}, size: {:L} }}", "", depth, box->m_TypeName, box->m_Offset, size) << std::endl;
         for (const auto& child : box->m_Children) {
             dumpBoxRef(child, depth + 1, dumpBoxRef);
         }
