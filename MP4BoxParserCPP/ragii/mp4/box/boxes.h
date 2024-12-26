@@ -50,10 +50,9 @@ namespace ragii { namespace mp4 {
 
 	struct Box
 	{
-		std::string m_TypeName;
+		BoxType m_Type;
 		uint32_t m_Size = 0;
 		uint64_t m_LargeSize = 0;
-		BoxType m_Type;
 		uint64_t m_Offset = 0;
 		uint64_t m_NextPos = 0;
 		Box* m_Parent = nullptr;
@@ -69,6 +68,10 @@ namespace ragii { namespace mp4 {
 			copy_box(this, &rhs);
 			return *this;
 		}
+
+        std::string getTypeName() const {
+            return fourcc_to_string(m_Type);
+        }
 
 		virtual ~Box() {}
 	};

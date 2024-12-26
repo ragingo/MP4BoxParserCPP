@@ -54,7 +54,6 @@ namespace ragii { namespace mp4 {
 		Box box;
 		box.m_Size = m_Reader.readUInt32();
 		box.m_Type = m_Reader.readUInt32();
-		box.m_TypeName = fourcc_to_string(box.m_Type);
 
 		if (box.m_Size == 1) {
 			box.m_LargeSize = m_Reader.readUInt64();

@@ -160,14 +160,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ragii\aac\ADTS_HEADER.h" />
-    <ClInclude Include="ragii\math\math.h" />
     <ClInclude Include="ragii\mp4\BoxParser.h" />
     <ClInclude Include="ragii\mp4\box\boxes.h" />
     <ClInclude Include="ragii\mp4\box\descriptors.h" />
     <ClInclude Include="ragii\mp4\box\qualifiers.h" />
     <ClInclude Include="ragii\mp4\types.h" />
     <ClInclude Include="ragii\serializer\BinaryReader.h" />
-    <ClInclude Include="ragii\text\text.h" />
     <ClInclude Include="ragii\util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

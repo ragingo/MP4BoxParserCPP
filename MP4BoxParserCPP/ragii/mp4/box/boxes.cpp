@@ -8,7 +8,6 @@ namespace ragii { namespace mp4 {
 		assert(dest && src);
 
 		dest->m_Type = src->m_Type;
-		dest->m_TypeName = src->m_TypeName;
 		dest->m_Size = src->m_Size;
 		dest->m_LargeSize = src->m_LargeSize;
 		dest->m_Offset = src->m_Offset;
